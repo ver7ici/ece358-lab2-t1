@@ -20,7 +20,7 @@ def makeRequest(method, uri):
 
 def main():
     makeRequest("HEAD", "/index.html")
-    makeRequest("HEAD", "/doesNotExist")
+    makeRequest("HEAD", "/not.exist")
 
 if __name__ == "__main__":
     main()

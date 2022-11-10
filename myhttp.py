@@ -6,11 +6,12 @@ DATEF = "%a, %d %b %Y %H:%M:%S GMT"
 
 class request:
     def parse(self, b):
+        """parse HTTP request in bytes"""
         lines = b.decode().split("\r\n")
 
         # parse request line
         # assume relative URI
-        self.method, self.uri, self.version = [lines[0].split(" ")[i] for i in range(3)]
+        self.method, self.uri, self.version = [lines[0].split(" ", 3)[i] for i in range(3)]
 
         # parse header lines
         self.headers = dict()
@@ -41,15 +42,25 @@ class request:
 
 class response:
     def addMessage(self, path, headersOnly=False):
-        with open(path, "rb") as f:
-            b = f.read()
-            self.headers.update({
-                "Content-Length": str(len(b)),
-                "Content-Type": "text/html; charset=utf-8",
-                "Last-Modified": datetime.fromtimestamp(os.path.getmtime(path)).strftime(DATEF),
-            })
-            if not headersOnly:
-                self.body = b.decode()
+        """add file to body if file exists, otherwise add 404 body
+        \n do not add body if HEAD request
+        """
+        try:
+            with open(path, "rb") as f:
+                b = f.read()
+                self.headers.update({
+                    "Content-Length": str(len(b)), # length in bytes
+                    "Content-Type": "text/html; charset=utf-8",
+                    "Last-Modified": datetime.fromtimestamp(os.path.getmtime(path)).strftime(DATEF),
+                })
+                if not headersOnly:
+                    self.body = b.decode()
+                self.setStatus(200)
+        except (PermissionError, FileNotFoundError):
+            # FileNotFoundError when path doesn't exist
+            # PermissionError when path cannot be opened (ex. points to a directory)
+            self.addMessage("./error/notFound.html", headersOnly)
+            self.setStatus(404)
 
     def setStatus(self, status):
         self.status = status

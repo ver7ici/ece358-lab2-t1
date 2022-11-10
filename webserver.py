@@ -10,7 +10,7 @@ def main():
     with socket(AF_INET, SOCK_STREAM) as serverSocket:
         serverSocket.bind((HOST, PORT))
         serverSocket.listen(1)
-        print("The server is ready to receive")
+        print("The server is ready to receive\n")
 
         while True:
             # wait for client contact, then open new socket
@@ -21,20 +21,13 @@ def main():
                     # read request
                     request = http.request()
                     request.parse(data)
-                    isHEAD = request.method == "HEAD"
 
                     print("Received request:")
                     print(request.toString())
 
+                    # assume only GET and HEAD requests
                     response = http.response()
-                    # add body if file exists, else 404
-                    # do not add body if HEAD request
-                    if os.path.exists("." + request.uri):
-                        response.addMessage("." + request.uri, isHEAD)
-                        response.setStatus(200)
-                    else:
-                        response.addMessage("./error/notFound.html", isHEAD)
-                        response.setStatus(404)
+                    response.addMessage("." + request.uri, request.method == "HEAD")
                     
                     print("Sent response:")
                     print(response.toString())
