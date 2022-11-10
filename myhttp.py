@@ -46,6 +46,9 @@ class response:
         \n do not add body if HEAD request
         """
         try:
+            if not path.endswith(".html"):
+                # only support fetching html files
+                raise PermissionError
             with open(path, "rb") as f:
                 b = f.read()
                 self.headers.update({
