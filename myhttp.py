@@ -62,7 +62,7 @@ class response:
         except (PermissionError, FileNotFoundError):
             # FileNotFoundError when path doesn't exist
             # PermissionError when path cannot be opened (ex. points to a directory)
-            self.addMessage("./error/notFound.html", headersOnly)
+            self.addMessage("./notFound.html", headersOnly)
             self.setStatus(404)
 
     def setStatus(self, status):
